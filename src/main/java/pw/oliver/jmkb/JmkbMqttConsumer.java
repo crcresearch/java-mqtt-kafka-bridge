@@ -1,10 +1,5 @@
 package pw.oliver.jmkb;
 
-import java.lang.NullPointerException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Arrays;
-
 import org.apache.avro.specific.SpecificRecordBase;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
@@ -49,10 +44,6 @@ public class JmkbMqttConsumer implements MqttCallback {
 		connect();
 	}
 
-  private static void clientSubscribe(String topic, MqttClient client) throws MqttException {
-      client.subscribe(topic);
-  }
-	
 	private void connect() {
 		try {
 			String frostServerURI = PropertiesFileReader.getProperty("frostServerURI");
