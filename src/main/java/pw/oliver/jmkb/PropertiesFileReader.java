@@ -47,7 +47,8 @@ public final class PropertiesFileReader {
 			if (!properties.containsKey("frostServerURI")
 					|| !properties.containsKey("kafkaBrokerURI")
 					|| !properties.containsKey("schemaRegistryURI")
-					|| !properties.containsKey("format")) {
+					|| !properties.containsKey("format")
+          || !properties.containsKey("topics")) {
 				throw new InvalidParameterException();
 			}
 		} catch (InvalidParameterException e) {
@@ -55,7 +56,8 @@ public final class PropertiesFileReader {
 					+ "\t- frostServerURI\n"
 					+ "\t- kafkaBrokerURI\n"
 					+ "\t- schemaRegistryURI\n"
-					+ "\t- format");
+					+ "\t- format\n"
+          + "\t- topics");
 			return false;
 		} catch (IOException e) {
 			logger.error("There was an error reading the configuration file.\n"
@@ -63,7 +65,7 @@ public final class PropertiesFileReader {
 					+ "the root directory of the program.");
 			return false;
 		}
-		
+
 		// check protocols of URIs
 		// prepend tcp:// to frostServerURI if no protocol is defined (required for MQTT)
 		if (!properties.getProperty("frostServerURI").contains("://")) {

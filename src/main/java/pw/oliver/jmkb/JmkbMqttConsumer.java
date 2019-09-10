@@ -1,5 +1,10 @@
 package pw.oliver.jmkb;
 
+import java.lang.NullPointerException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Arrays;
+
 import org.apache.avro.specific.SpecificRecordBase;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
@@ -43,26 +48,38 @@ public class JmkbMqttConsumer implements MqttCallback {
 		this.converter = new MqttMessageConverter();
 		connect();
 	}
+
+  private static void clientSubscribe(String topic, MqttClient client) throws MqttException {
+      client.subscribe(topic);
+  }
 	
 	private void connect() {
 		try {
 			String frostServerURI = PropertiesFileReader.getProperty("frostServerURI");
-			
 			MqttConnectOptions options = new MqttConnectOptions();
 			options.setCleanSession(true);
 			this.client = new MqttClient(frostServerURI, clientId);
 			client.setCallback(this);
-			client.connect(options);
+      client.connect(options);
 			logger.info("{} successfully connected to MQTT", clientId);
-			client.subscribe("v1.0/Things");
-			client.subscribe("v1.0/Datastreams");
-			client.subscribe("v1.0/Locations");
-			client.subscribe("v1.0/HistoricalLocations");
-			client.subscribe("v1.0/Sensors");
-			client.subscribe("v1.0/ObservedProperties");
-			client.subscribe("v1.0/FeaturesOfInterest");
-			client.subscribe("v1.0/Observations");
-			logger.info("{} successfully subscribed to topics", clientId);
+      String topics = PropertiesFileReader.getProperty("topics");
+      if (topics != null) {
+          String[] topicsArray = topics.split(",");
+          for (String topic : topicsArray) {
+            client.subscribe(topic.trim());
+          }
+      } else {
+        logger.warn("Topics not defined... Subscribing to default topics.");
+        client.subscribe("v1.0/Things");
+        client.subscribe("v1.0/Datastreams");
+        client.subscribe("v1.0/Locations");
+        client.subscribe("v1.0/HistoricalLocations");
+        client.subscribe("v1.0/Sensors");
+        client.subscribe("v1.0/ObservedProperties");
+        client.subscribe("v1.0/FeaturesOfInterest");
+        client.subscribe("v1.0/Observations");
+        logger.info("{} successfully subscribed to topics", clientId);
+      }
 		} catch (MqttException e) {
 			logger.warn("Could not initialize MQTT client {}", clientId, e);
 		}
